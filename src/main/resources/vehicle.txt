@@ -1,0 +1,6 @@
+id;capacity;fullness;priority; upload?
+1256; 2000; 0; false; true;
+8569; 2000; 1900; false; false;
+1584; 2000; 500; false; true;
+1868; 2000; 2000; true; false;
+1753; 2000; 100; false; true;
