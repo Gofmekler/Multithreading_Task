@@ -7,10 +7,19 @@ import java.util.concurrent.TimeUnit;
 public class Terminal {
     private int terminalId;
     private int terminalCapacity;
+    private boolean isBusy;
 
     public Terminal(int terminalId, int terminalCapacity){
         this.terminalId = terminalId;
         this.terminalCapacity = terminalCapacity;
+    }
+
+    public boolean isBusy(){
+        return isBusy;
+    }
+
+    public void setIsBusy(boolean isBusy){
+        this.isBusy = isBusy;
     }
 
     public int getTerminalId() {
@@ -28,14 +37,14 @@ public class Terminal {
     public void setTerminalCapacity(int terminalCapacity) {
         this.terminalCapacity = terminalCapacity;
     }
-    public void releaseVehicle(Vehicle vehicle){
+
+    public void useVehicle(Vehicle vehicle){
         try {
             TimeUnit.SECONDS.sleep(5);
-            CustomParserImpl parser = new CustomParserImpl();
-            parser.parseTerminal("21231231");
             terminalCapacity = vehicle.upLoad() ? terminalCapacity - vehicle.getVehicleFullness() : terminalCapacity + vehicle.getVehicleFullness();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //log with terminal info id
+            Thread.currentThread().interrupt();
         }
 
     }

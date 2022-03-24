@@ -16,7 +16,6 @@ public class CustomReader implements CustomReaderInterface {
             String lineOfFile;
             while ((lineOfFile = bufferedReader.readLine()) != null) {
                 result.add(lineOfFile);
-
             }
         } catch (IOException e) {
             e.printStackTrace();

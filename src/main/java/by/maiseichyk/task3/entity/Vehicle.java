@@ -1,17 +1,15 @@
 package by.maiseichyk.task3.entity;
 
-import java.util.concurrent.Callable;
+import by.maiseichyk.task3.exception.CustomException;
 
-public class Vehicle implements Callable<String> {
+public class Vehicle implements Runnable {
     private int vehicleId;
     private boolean upLoad;
     private boolean isPriority;
-    private int vehicleCapacity ;
     private int vehicleFullness ;
 
-    public Vehicle(int vehicleId, int vehicleCapacity, int vehicleFullness, boolean isPriority, boolean upLoad){
+    public Vehicle(int vehicleId, int vehicleFullness, boolean isPriority, boolean upLoad){
         this.vehicleId = vehicleId;
-        this.vehicleCapacity = vehicleCapacity;
         this.vehicleFullness = vehicleFullness;
         this.isPriority = isPriority;
         this.upLoad = upLoad;
@@ -41,14 +39,6 @@ public class Vehicle implements Callable<String> {
         isPriority = priority;
     }
 
-    public int getVehicleCapacity() {
-        return vehicleCapacity;
-    }
-
-    public void setVehicleCapacity(int vehicleCapacity) {
-        this.vehicleCapacity = vehicleCapacity;
-    }
-
     public int getVehicleFullness() {
         return vehicleFullness;
     }
@@ -58,7 +48,17 @@ public class Vehicle implements Callable<String> {
     }
 
     @Override
-    public String call() throws Exception {
-        return null;
+    public void run() {
+        LogisticBase logisticBase = LogisticBase.getInstance();
+        Terminal terminal = null;
+        try{
+            terminal = logisticBase.getAccessToTerminal(this);
+            terminal.useVehicle(this);
+        } catch (CustomException e) {
+            e.printStackTrace();
+        }
+        finally {
+            logisticBase.releaseTerminal(this, terminal);
+        }
     }
 }
