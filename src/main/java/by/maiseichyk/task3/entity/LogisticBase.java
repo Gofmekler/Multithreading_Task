@@ -4,21 +4,21 @@ import by.maiseichyk.task3.exception.CustomException;
 import by.maiseichyk.task3.parser.impl.CustomParserImpl;
 import by.maiseichyk.task3.reader.impl.CustomReader;
 
-import java.sql.Time;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class LogisticBase {
-    private final Semaphore semaphore = new Semaphore(3, true);
+    private final Semaphore semaphore = new Semaphore(2, false);
     private static LogisticBase instance;
     private static ReentrantLock reentrantLock = new ReentrantLock();
     private static AtomicBoolean creator = new AtomicBoolean(false);
-    private ArrayDeque<Vehicle> vehicles;
-    private ArrayDeque<Terminal> terminals;
+//    private Deque<Vehicle> vehicles = new ArrayDeque<>();
+    public Deque<Terminal> terminals = new ArrayDeque<>();
 
     public static LogisticBase getInstance(){
         if(!creator.get()){
@@ -35,49 +35,41 @@ public class LogisticBase {
         return instance;
     }
 
-    private LogisticBase(){
+    private LogisticBase() {
         CustomReader customReader = new CustomReader();
         CustomParserImpl customParser = new CustomParserImpl();
-//        ArrayList<String> listVehicles = customReader.readFile("/src/data.txt");
-//        for (String line : listVehicles){
-//            Vehicle vehicle = customParser.parseVehicle(line);
-//            for(int i = 0; i < listVehicles.size(); i++){
-//                vehicles.add(vehicle);
-//            }
-//        }
-        ArrayList<String> listOfTerminals = customReader.readFile("/src/data2.txt");
+        ArrayList<String> listOfTerminals = customReader.readFile("src/main/resources/terminal.txt");
         for (String line : listOfTerminals){
-            Terminal terminal = customParser.parseTerminal(line);
-            for(int i = 0; i < listOfTerminals.size(); i++){
-                terminals.add(terminal);
-            }
-        }
+                Terminal terminal = customParser.parseTerminal(line);
+                    terminals.addLast(terminal);
+                }
     }
-    public Terminal getAccessToTerminal(Vehicle vehicle) throws CustomException {
-        if(semaphore.tryAcquire()){
-            for (Terminal terminal : terminals){
-                if(!terminal.isBusy()) {
-                    terminal.setIsBusy(true);//log with vehicle
-                    terminals.removeFirst();
-                    if (vehicle.isPriority()) {
-                        vehicles.addFirst(vehicle);
-                    } else {
-                        vehicles.addLast(vehicle);
-                    }
-                    return terminal;
+
+    public Terminal getAccessToTerminal(Vehicle vehicle) throws CustomException, InterruptedException {
+        Terminal terminal = null;
+        try{
+            semaphore.acquire();
+                if (!terminals.isEmpty()){
+                    //log with vehicle
+                    terminal = terminals.removeFirst();
+                    terminal.isBusy().set(true);
                 }
             }
-        }
-        throw new CustomException();
+            catch (InterruptedException  e){
+                e.printStackTrace();
+            }
+        return terminal;
     }
 
     public void releaseTerminal(Vehicle vehicle, Terminal terminal){
-        terminal.setIsBusy(false);//log with vehicle
+        //log with vehicle
         try {
-            TimeUnit.MILLISECONDS.sleep(500);
+            terminal.isBusy().set(false);
+            TimeUnit.MILLISECONDS.sleep(50);
             terminals.addLast(terminal);
+            System.out.println("Releasing terminal in Logistic base class " + Thread.currentThread().getName());
         }
-        catch (InterruptedException e) {
+        catch (InterruptedException | NullPointerException e) {
             e.printStackTrace();
         }
         finally {

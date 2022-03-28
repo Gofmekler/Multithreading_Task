@@ -1,25 +1,20 @@
 package by.maiseichyk.task3.entity;
 
-import by.maiseichyk.task3.parser.impl.CustomParserImpl;
-
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Terminal {
     private int terminalId;
     private int terminalCapacity;
-    private boolean isBusy;
+    private AtomicBoolean isBusy = new AtomicBoolean(false);
 
-    public Terminal(int terminalId, int terminalCapacity){
+    public Terminal(int terminalId, int terminalCapacity) {
         this.terminalId = terminalId;
         this.terminalCapacity = terminalCapacity;
     }
 
-    public boolean isBusy(){
+    public AtomicBoolean isBusy(){
         return isBusy;
-    }
-
-    public void setIsBusy(boolean isBusy){
-        this.isBusy = isBusy;
     }
 
     public int getTerminalId() {
@@ -40,12 +35,12 @@ public class Terminal {
 
     public void useVehicle(Vehicle vehicle){
         try {
-            TimeUnit.SECONDS.sleep(5);
+            TimeUnit.MILLISECONDS.sleep(5);
             terminalCapacity = vehicle.upLoad() ? terminalCapacity - vehicle.getVehicleFullness() : terminalCapacity + vehicle.getVehicleFullness();
+            System.out.println("Using terminal by vehicle " + terminalCapacity + Thread.currentThread().getName());
         } catch (InterruptedException e) {
             e.printStackTrace(); //log with terminal info id
             Thread.currentThread().interrupt();
         }
-
     }
 }

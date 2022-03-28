@@ -5,7 +5,8 @@ import by.maiseichyk.task3.entity.Vehicle;
 import by.maiseichyk.task3.parser.CustomParserInterface;
 
 public class CustomParserImpl implements CustomParserInterface {
-    private static final String SPLIT_REGEX = "//;*//s*//,*";
+    private static final String SPLIT_REGEX = "\\s+";
+//    private final int TERMINAL_CAPACITY = 15000;
 
     @Override
     public Vehicle parseVehicle(String lineVehicle) {

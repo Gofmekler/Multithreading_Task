@@ -2,7 +2,7 @@ package by.maiseichyk.task3.entity;
 
 import by.maiseichyk.task3.exception.CustomException;
 
-public class Vehicle implements Runnable {
+public class Vehicle extends Thread {
     private int vehicleId;
     private boolean upLoad;
     private boolean isPriority;
@@ -49,16 +49,21 @@ public class Vehicle implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("Thread starts " + Thread.currentThread().getName());
         LogisticBase logisticBase = LogisticBase.getInstance();
+        System.out.println("get instance " + Thread.currentThread().getName());
         Terminal terminal = null;
         try{
+            System.out.println("getting access..." + Thread.currentThread().getName());
             terminal = logisticBase.getAccessToTerminal(this);
+            System.out.println("Try to use terminal.... " + Thread.currentThread().getName());
             terminal.useVehicle(this);
-        } catch (CustomException e) {
+        } catch (CustomException | InterruptedException e) {
             e.printStackTrace();
         }
         finally {
             logisticBase.releaseTerminal(this, terminal);
+            System.out.println("Releasing terminal in vehicle class " + Thread.currentThread().getName());
         }
     }
 }
