@@ -1,16 +1,19 @@
 package by.maiseichyk.task3.entity;
 
 import by.maiseichyk.task3.exception.CustomException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Vehicle extends Thread {
+    private static Logger logger = LogManager.getLogger();
     private int vehicleId;
     private boolean upLoad;
     private boolean isPriority;
-    private int vehicleFullness ;
+    private int vehicleCapacity ;
 
-    public Vehicle(int vehicleId, int vehicleFullness, boolean isPriority, boolean upLoad){
+    public Vehicle(int vehicleId, int vehicleCapacity, boolean isPriority, boolean upLoad){
         this.vehicleId = vehicleId;
-        this.vehicleFullness = vehicleFullness;
+        this.vehicleCapacity = vehicleCapacity;
         this.isPriority = isPriority;
         this.upLoad = upLoad;
         }
@@ -39,31 +42,29 @@ public class Vehicle extends Thread {
         isPriority = priority;
     }
 
-    public int getVehicleFullness() {
-        return vehicleFullness;
+    public int getVehicleCapacity() {
+        return vehicleCapacity;
     }
 
-    public void setVehicleFullness(int vehicleFullness) {
-        this.vehicleFullness = vehicleFullness;
+    public void setVehicleCapacity(int vehicleCapacity) {
+        this.vehicleCapacity = vehicleCapacity;
     }
 
     @Override
     public void run() {
-        System.out.println("Thread starts " + Thread.currentThread().getName());
+        logger.info("Thread starts: " + Thread.currentThread().getName());
         LogisticBase logisticBase = LogisticBase.getInstance();
-        System.out.println("get instance " + Thread.currentThread().getName());
         Terminal terminal = null;
         try{
-            System.out.println("getting access..." + Thread.currentThread().getName());
+            logger.info("Thread: " + Thread.currentThread().getName() + " is tying to get access to terminal");
             terminal = logisticBase.getAccessToTerminal(this);
-            System.out.println("Try to use terminal.... " + Thread.currentThread().getName());
             terminal.useVehicle(this);
         } catch (CustomException | InterruptedException e) {
-            e.printStackTrace();
+            logger.warn("Thread was interrupted: " + Thread.currentThread().getName());
         }
         finally {
-            logisticBase.releaseTerminal(this, terminal);
-            System.out.println("Releasing terminal in vehicle class " + Thread.currentThread().getName());
+            logisticBase.releaseTerminal(terminal);
+            logger.info("Releasing terminal");
         }
     }
 }
